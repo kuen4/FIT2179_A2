@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Are Australians Getting What They Pay For?</title>
+
+  <!-- Vega-Lite -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0F1923; color: #E8ECEF; font-family: 'DM Sans', sans-serif;
+      font-size: 16px; line-height: 1.65; max-width: 1200px; margin: 0 auto; padding: 0 32px;
+    }
+    h1, h2 { font-family: 'DM Serif Display', serif; font-weight: 400; }
+
+    .hero { padding: 80px 0 48px; border-bottom: 1px solid #1E3040; margin-bottom: 56px; }
+    .hero h1 { font-size: 48px; line-height: 1.15; margin-bottom: 16px; }
+    .hero h1 span { color: #E0604D; }
+    .hero .subtitle { font-size: 18px; color: #8A9BAE; max-width: 900px; }
+    .hero .meta { margin-top: 20px; font-size: 13px; color: #4E6275; }
+
+    .section { margin-bottom: 72px; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .section-header h2 { font-size: 32px; }
+    .section-number {
+      font-family: 'DM Serif Display', serif; font-size: 14px; width: 28px; height: 28px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .section-number.blue { background: #3B9AE1; color: #0F1923; }
+    h2.blue { color: #3B9AE1; }
+    .section-intro { color: #8A9BAE; font-size: 16px; max-width: 900px; margin-bottom: 36px; margin-top: 8px; }
+
+    /* CSS Grid Layout */
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .full-width { grid-column: 1 / -1; }
+
+    .chart-card {
+      background: #162029; border: 1px solid #1E3040; border-radius: 12px;
+      padding: 28px; margin-bottom: 28px; display: flex; flex-direction: column;
+    }
+    .chart-card h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+    .chart-card .chart-desc { font-size: 13px; color: #8A9BAE; margin-bottom: 20px; }
+
+    .vega-container { width: 100%; display: flex; justify-content: center; flex-grow: 1; min-height: 300px; }
+
+    .footer { border-top: 1px solid #1E3040; padding: 40px 0; margin-top: 48px; }
+    .footer p { font-size: 13px; color: #4E6275; line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <h1>Are Australians Getting What They <span>Pay For?</span></h1>
+    <p class="subtitle">An investigation into broadband speeds, promises, and the reality of internet performance across Australia — using independent test data from 1,148 households.</p>
+    <p class="meta">Data: ACCC Measuring Broadband Australia Report 32 (Dec 2025) · NBN Co via data.gov.au</p>
+  </header>
+
+  <!-- SECTION 1: SETTING THE SCENE -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-number blue">1</div>
+      <h2 class="blue">Setting the scene</h2>
+    </div>
+    <p class="section-intro">Australia's National Broadband Network connects over 8 million premises. The rollout took years and utilised a mixed-technology model across different states.</p>
+
+    <div class="chart-grid">
+      
+      <!-- AREA CHART -->
+      <div class="chart-card full-width">
+        <h3>1. The NBN rollout over time</h3>
+        <p class="chart-desc">Cumulative activated connections from 2016 onwards, broken down by network type.</p>
+        <div id="chart-area" class="vega-container"></div>
+      </div>
+
+      <!-- MAP-->
+      <div class="chart-card">
+        <h3>2. Broadband performance by state</h3>
+        <p class="chart-desc">Average download speed as a percentage of plan speed during busy hours (7–11 PM).</p>
+        <div id="chart-map" class="vega-container"></div>
+      </div>
+
+      <!-- BAR CHART -->
+      <div class="chart-card">
+        <h3>3. Total activations by state</h3>
+        <p class="chart-desc">Total active NBN connections across Australian states.</p>
+        <div id="chart-state-bar" class="vega-container"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p><strong>Data sources:</strong> <a href="#" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report 32</a> (April 2026) · <a href="#" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a></p>
+    <p style="margin-top:8px;"><strong>Author:</strong> [Your Name] · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
+  </footer>
+
+  <script>
+    const darkTheme = {
+      background: "#162029",
+      title: { color: "#E8ECEF", font: "DM Sans", fontSize: 14, fontWeight: "normal" },
+      axis: {
+        labelColor: "#8A9BAE", titleColor: "#8A9BAE", gridColor: "#1E3040",
+        domainColor: "#1E3040", tickColor: "#1E3040", font: "DM Sans"
+      },
+      legend: { labelColor: "#8A9BAE", titleColor: "#8A9BAE", font: "DM Sans" },
+      view: { stroke: "transparent" },
+      text: { font: "DM Sans", color: "#E8ECEF" }
+    };
+
+    // --- CHART 1: AREA CHART ---
+    vegaEmbed('#chart-area', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 350,
+      data: { url: "data/nbn_rollout_timeseries.csv" },
+      transform: [
+        { fold: ["brownfield_activated", "greenfield_activated", "wireless_activated", "satellite_activated"], as: ["Tech", "Connections"] },
+        { calculate: "replace(datum.Tech, '_activated', '')", as: "Technology" }
+      ],
+      params: [{
+        name: "tech_highlight",
+        select: { type: "point", fields: ["Technology"] },
+        bind: "legend"
+      }],
+      mark: { type: "area", tooltip: true },
+      encoding: {
+        x: { field: "date", type: "temporal", title: "Year" },
+        y: { field: "Connections", type: "quantitative", title: "Total Activated", axis: {format: "s"} },
+        color: { field: "Technology", type: "nominal", scale: { scheme: "tableau10" } },
+        opacity: {
+          condition: { param: "tech_highlight", value: 1 },
+          value: 0.2
+        }
+      }
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
+    // --- CHART 2: MAP ---
+    vegaEmbed('#chart-map', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 350,
+      data: { url: "data/states.geojson", format: { property: "features" } },
+      transform: [{
+        lookup: "properties.STATE_NAME",
+        from: { data: { url: "data/state_speeds.csv" }, key: "state", fields: ["download_busy"] }
+      }],
+      projection: { type: "mercator" },
+      mark: { type: "geoshape", stroke: "#1E3040", strokeWidth: 1 },
+      encoding: {
+        color: { 
+            field: "download_busy", 
+            type: "quantitative", 
+            scale: { domain: [94, 100], scheme: "blues" }, 
+            legend: { title: "% Speed" } 
+        },
+        tooltip: [
+          { field: "properties.STATE_NAME", type: "nominal", title: "State" },
+          { field: "download_busy", type: "quantitative", title: "Download (busy hrs)", format: ".1f" }
+        ]
+      }
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
+    // --- CHART 3: STATE BAR CHART  ---
+    vegaEmbed('#chart-state-bar', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 350,
+      data: { url: "data/nbn_state_breakdown.csv" },
+      transform: [
+        { calculate: "datum.total_activated - datum.brownfield_activated", as: "greenfield_and_other_activated" },
+        { fold: ["brownfield_activated", "greenfield_and_other_activated"], as: ["Build_Type", "Connections"] },
+        { calculate: "datum.Build_Type === 'brownfield_activated' ? 'Existing (Brownfield)' : 'New Build (Greenfield/Other)'", as: "Connection Type" }
+      ],
+      layer: [
+        {
+          params: [{
+            name: "hover",
+            select: { type: "point", on: "mouseover", clear: "mouseout" }
+          }],
+          mark: { type: "bar", cornerRadiusEnd: 2 },
+          encoding: {
+            y: { field: "state", type: "nominal", sort: "-x", title: null },
+            x: { field: "Connections", type: "quantitative", title: "Activated Premises", axis: {format: "s"} },
+            color: { field: "Connection Type", type: "nominal", scale: { range: ["#3B9AE1", "#1DB38B"] }, legend: {orient: "bottom"} },
+            opacity: {
+              condition: { param: "hover", empty: false, value: 1 },
+              value: 0.7 
+            },
+            tooltip: [
+              { field: "state", title: "State" }, 
+              { field: "Connection Type", title: "Type" },
+              { field: "Connections", title: "Connections", format: "," }
+            ]
+          }
+        },
+        {
+          mark: { type: "text", align: "left", dx: 5, color: "#E8ECEF", font: "DM Sans", fontSize: 11, fontStyle: "italic" },
+          encoding: {
+            y: { field: "state", type: "nominal", sort: "-x" },
+            x: { aggregate: "sum", field: "Connections", type: "quantitative" },
+            text: { condition: { test: "datum.state == 'NSW'", value: "← Highest activations" }, value: "" }
+          }
+        }
+      ]
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
+  </script>
+</body>
+</html>

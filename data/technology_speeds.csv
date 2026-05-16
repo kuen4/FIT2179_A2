@@ -1,0 +1,5 @@
+technology,download_all,download_busy,upload_all,upload_busy,std_dev_dl,panel_size,underperforming_pct
+FTTP,100.7,100.1,93.2,93.0,18.7,592,4.9
+FTTC,106.2,105.2,93.6,93.0,3.4,41,0.0
+HFC,99.0,98.3,91.1,90.8,20.4,294,6.1
+FTTN,94.4,93.6,80.9,80.7,16.9,221,11.8
