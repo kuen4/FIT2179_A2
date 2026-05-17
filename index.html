@@ -104,6 +104,44 @@
     <p style="margin-top:8px;"><strong>Author:</strong> [Your Name] · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
   </footer>
 
+  <!-- SECTION 2 -->
+    <section class="section">
+    <div class="section-header">
+      <!-- This creates the teal circle with the number 2 -->
+      <div class="section-number blue">2</div>
+      <h2 class="blue">Advertised vs Actual Speeds by provider</h2>
+    </div>
+    <p class="section-intro">Retail Service Providers advertise maximum theoretical speeds. However, real-world network congestion means performance drops, especially during the 7–11 PM busy hours.</p>
+
+    <div class="chart-grid">
+      <!-- DUMBBELL PLOT -->
+      <div class="chart-card">
+        <h3>The peak hour speed drop</h3>
+        <p class="chart-desc">Comparing all hours vs busy hours download speeds by provider.</p>
+        <div id="chart-dumbbell" class="vega-container"></div>
+      </div>
+
+      <!-- SCATTER PLOT -->
+      <div class="chart-card">
+        <h3>The Download vs Upload Balance</h3>
+        <p class="chart-desc">Comparing busy hour download and upload performance. Use the dropdown to highlight a provider.</p>
+        <div id="chart-scatter" class="vega-container"></div>
+      </div>
+
+      <!-- OUTAGES CHART -->
+      <div class="chart-card">
+        <h3>Network stability: frequency of outages</h3>
+        <p class="chart-desc">Percentage of panel members experiencing daily vs occasional dropouts.</p>
+        <div id="chart-outages" class="vega-container"></div>
+      </div>
+
+      <!-- UNDERPERFORMING CHART -->
+      <div class="chart-card">
+        <h3>Underperforming services by provider</h3>
+        <p class="chart-desc">Percentage of connections that consistently fail to reach advertised speeds.</p>
+        <div id="chart-underperforming-rsp" class="vega-container"></div>
+      </div>
+    </div>
   <script>
     const darkTheme = {
       background: "#162029",
@@ -116,6 +154,7 @@
       view: { stroke: "transparent" },
       text: { font: "DM Sans", color: "#E8ECEF" }
     };
+
 
     // --- CHART 1: AREA CHART ---
     vegaEmbed('#chart-area', {
@@ -210,6 +249,172 @@
         }
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
+  
+       // --- 1. SHARED INTERACTIVE VARIABLE --
+    const rspSelection = {
+      name: "Select_Provider",
+      select: { type: "point", fields: ["rsp"] },
+      bind: {
+        input: "select",
+        options: [null, "Aussie Broadband", "Dodo & iPrimus", "Exetel", "iiNet", "Leaptel", "Optus", "Superloop", "Telstra", "TPG"],
+        labels: ["Show All", "Aussie Broadband", "Dodo & iPrimus", "Exetel", "iiNet", "Leaptel", "Optus", "Superloop", "Telstra", "TPG"],
+        name: "Highlight Provider: "
+      }
+    };
+
+    // --- CHART 4: DUMBBELL PLOT ---
+    vegaEmbed('#chart-dumbbell', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 350,
+      data: { url: "data/rsp_speeds.csv" },
+      encoding: { 
+        y: { 
+          field: "rsp", type: "nominal", 
+          sort: {op: "mean", field: "download_all", order: "descending"},
+          title: null, axis: {labelLimit: 150} 
+        } 
+      },
+      layer: [
+        {
+          mark: { type: "rule", color: "#4E6275", size: 3 },
+          encoding: { 
+            x: { field: "download_all", type: "quantitative", scale: {domain: [85, 105]}, title: "% of Plan Speed" }, 
+            x2: { field: "download_busy", type: "quantitative" } 
+          }
+        },
+        {
+          mark: { type: "point", filled: true, size: 150, opacity: 1 },
+          encoding: {
+            x: { field: "download_all", type: "quantitative" },
+            color: { datum: "All Hours", type: "nominal", title: "Period", scale: {range: ["#8A9BAE", "#E0604D"]} },
+            tooltip: [{field: "rsp", type: "nominal", title: "Provider"}, {field: "download_all", type: "quantitative", title: "All Hours Speed %", format: ".1f"}]
+          }
+        },
+        {
+          mark: { type: "point", filled: true, size: 150, opacity: 1 },
+          encoding: {
+            x: { field: "download_busy", type: "quantitative" },
+            color: { datum: "Busy Hours", type: "nominal" },
+            tooltip: [{field: "rsp", type: "nominal", title: "Provider"}, {field: "download_busy", type: "quantitative", title: "Busy Hours Speed %", format: ".1f"}]
+          }
+        },
+        {
+          mark: { type: "text", align: "right", dx: -12, color: "#E0604D", font: "DM Sans", fontSize: 11, fontStyle: "italic" },
+          encoding: {
+            x: { field: "download_busy", type: "quantitative" },
+            text: { condition: { test: "datum.rsp == 'TPG'", value: "TPG shows a notable drop →" }, value: "", type: "nominal" }
+          }
+        }
+      ]
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
+    // --- CHART 5: SCATTER PLOT ---
+    vegaEmbed('#chart-scatter', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 320,
+      data: { url: "data/rsp_speeds.csv" },
+      layer: [
+        {
+          params: [rspSelection], 
+          mark: { type: "circle", size: 250 },
+          encoding: {
+            x: { field: "download_busy", type: "quantitative", scale: {domain: [93, 103]}, title: "Download % (Busy Hrs)" },
+            y: { field: "upload_busy", type: "quantitative", scale: {domain: [85, 94]}, title: "Upload % (Busy Hrs)" },
+            color: { field: "rsp", type: "nominal", legend: null, scale: {scheme: "tableau10"} },
+            opacity: { condition: { param: "Select_Provider", value: 1 }, value: 0.2 },
+            tooltip: [
+              {field: "rsp", type: "nominal", title: "Provider"},
+              {field: "download_busy", type: "quantitative", title: "Download %", format: ".1f"},
+              {field: "upload_busy", type: "quantitative", title: "Upload %", format: ".1f"}
+            ]
+          }
+        },
+        {
+          mark: { type: "text", dy: -18, font: "DM Sans", fill: "#E8ECEF", fontSize: 11, fontWeight: "bold" },
+          encoding: {
+            x: { field: "download_busy", type: "quantitative" },
+            y: { field: "upload_busy", type: "quantitative" },
+            text: { field: "rsp", type: "nominal" },
+            opacity: { condition: { param: "Select_Provider", value: 1 }, value: 0.1 }
+          }
+        }
+      ]
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
+    // --- CHART 6: OUTAGES HEATMAP  ---
+    vegaEmbed('#chart-outages', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 350,
+      data: { url: "data/outages_rsp.csv" },
+      transform: [
+        { fold: ["no_outages", "every_other_day", "most_days", "daily"], as: ["Frequency", "Percentage"] },
+        { calculate: "datum.Frequency == 'no_outages' ? 'No Outages' : datum.Frequency == 'every_other_day' ? 'Occasional' : datum.Frequency == 'most_days' ? 'Most Days' : 'Daily'", as: "Outage Frequency" }
+      ],
+      encoding: {
+        y: { field: "rsp", type: "nominal", title: null, axis: {labelLimit: 150} },
+        x: { 
+            field: "Outage Frequency", 
+            type: "nominal", 
+            sort: ["No Outages", "Occasional", "Most Days", "Daily"], 
+            title: null,
+            axis: {labelAngle: -45}
+        }
+      },
+      layer: [
+        {
+          mark: { type: "rect", cornerRadius: 3 },
+          encoding: {
+            color: { field: "Percentage", type: "quantitative", scale: { scheme: "oranges" }, legend: {title: "% of Customers"} },
+            tooltip: [
+              {field: "rsp", type: "nominal", title: "Provider"}, 
+              {field: "Outage Frequency", type: "nominal"}, 
+              {field: "Percentage", type: "quantitative", format: ".1f"}
+            ]
+          }
+        },
+        {
+          mark: { type: "text", font: "DM Sans", fontSize: 11, color: "black", fontWeight: "bold" },
+          encoding: {
+            text: { field: "Percentage", type: "quantitative", format: ".0f" }
+          }
+        }
+      ]
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
+
+    // --- CHART 7: UNDERPERFORMING RSPs LOLLIPOP ---
+    vegaEmbed('#chart-underperforming-rsp', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 350,
+      data: { url: "data/underperforming_rsp.csv" },
+      encoding: {
+        y: { field: "rsp", type: "nominal", sort: {op: "mean", field: "pct", order: "descending"}, title: null, axis: {labelLimit: 150} }
+      },
+      layer: [
+        {
+          mark: { type: "bar", color: "#4E6275", size: 2 },
+          encoding: { x: { field: "pct", type: "quantitative" } }
+        },
+        {
+          mark: { type: "point", filled: true, size: 250, color: "#E0604D", opacity: 1 },
+          encoding: {
+            x: { field: "pct", type: "quantitative" },
+            tooltip: [
+              {field: "rsp", type: "nominal", title: "Provider"}, 
+              {field: "pct", type: "quantitative", title: "% Underperforming", format: ".1f"}
+            ]
+          }
+        },
+        {
+          mark: { type: "text", align: "left", dx: 12, font: "DM Sans", fontSize: 11, fill: "#E8ECEF" },
+          encoding: {
+            x: { field: "pct", type: "quantitative" },
+            text: { field: "pct", type: "quantitative", format: ".1f" }
+          }
+        }
+      ]
+    }, { config: darkTheme, actions: false }).catch(console.error);
+
 
   </script>
 </body>
