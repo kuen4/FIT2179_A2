@@ -98,12 +98,6 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <p><strong>Data sources:</strong> <a href="#" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report 32</a> (April 2026) · <a href="#" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a></p>
-    <p style="margin-top:8px;"><strong>Author:</strong> Kuenley Mututsang · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
-  </footer>
-
   <!-- SECTION 2: Are Providers Delivering? -->
     <section class="section">
     <div class="section-header">
@@ -141,6 +135,44 @@
         <div id="chart-underperforming-rsp" class="vega-container"></div>
       </div>
     </div>
+    </section>
+    <!-- SECTION 3: THE TECHNOLOGY LOTTERY -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number blue">3</div>
+        <h2 class="blue">The technology lottery</h2>
+      </div>
+      <p class="section-intro">Your broadband experience depends heavily on the type of NBN connection at your address — fibre to the premises (FTTP) delivers the best results, while fibre to the node (FTTN) relies on old copper wiring and consistently underperforms.</p>
+
+      <div class="chart-grid">
+        <!-- CHART 8: DOT STRIP PLOT -->
+        <div class="chart-card full-width">
+          <h3>Every household tells a story</h3>
+          <p class="chart-desc">Each dot represents one of 1,172 tested households. Grouped by connection technology, showing busy hour download speeds in Mbps.</p>
+          <div id="chart-strip" class="vega-container"></div>
+        </div>
+
+        <!-- CHART 9: BUTTERFLY CHART -->
+        <div class="chart-card">
+          <h3>Download vs upload by technology</h3>
+          <p class="chart-desc">Average busy hour speeds in Mbps. Download on the right, upload on the left — showing the asymmetry.</p>
+          <div id="chart-butterfly" class="vega-container"></div>
+        </div>
+
+        <!-- CHART 10: GROUPED BAR -->
+        <div class="chart-card">
+          <h3>The urban-rural divide</h3>
+          <p class="chart-desc">Average busy hour download and upload speeds by geographic classification.</p>
+          <div id="chart-geography" class="vega-container"></div>
+        </div>
+      </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p><strong>Data sources:</strong> <a href="#" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report 32</a> (April 2026) · <a href="#" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a></p>
+    <p style="margin-top:8px;"><strong>Author:</strong> Kuenley Mututsang · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
+  </footer>
+</section>
   <script>
     const darkTheme = {
       background: "#162029",
@@ -153,7 +185,6 @@
       view: { stroke: "transparent" },
       text: { font: "DM Sans", color: "#E8ECEF" }
     };
-
 
     // --- CHART 1: AREA CHART ---
     vegaEmbed('#chart-area', {
@@ -414,7 +445,89 @@
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
 
+  // --- CHART 8: DOT STRIP PLOT ---
+    vegaEmbed('#chart-strip', {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: "container", height: 400,
+      data: { url: "data/whitebox_speeds.csv" },
+      transform: [
+        { filter: "datum.technology == 'Fibre to the Premises' || datum.technology == 'Fibre to the Node' || datum.technology == 'Hybrid Fibre Coaxial' || datum.technology == 'Fibre to the Curb'" },
+        { calculate: "toNumber(datum.download_busy)", as: "dl_speed" }
+      ],
+      mark: { type: "tick", thickness: 2, opacity: 0.4 },
+      encoding: {
+        x: { field: "dl_speed", type: "quantitative", title: "Download Speed (Mbps)", scale: { domain: [0, 600] } },
+        y: { field: "technology", type: "nominal", title: null, axis: { labelLimit: 200 } },
+        color: {
+          field: "technology", type: "nominal",
+          scale: { domain: ["Fibre to the Premises", "Fibre to the Curb", "Hybrid Fibre Coaxial", "Fibre to the Node"], range: ["#3B9AE1", "#1DB38B", "#F0A82D", "#E0604D"] },
+          legend: null
+        },
+        tooltip: [
+          { field: "technology", type: "nominal", title: "Technology" },
+          { field: "dl_speed", type: "quantitative", title: "Download (Mbps)", format: ".1f" },
+          { field: "rsp", type: "nominal", title: "Provider" },
+          { field: "tier", type: "nominal", title: "Plan" }
+        ]
+      }
+    }, { config: darkTheme, actions: false }).catch(console.error);
 
+  // --- CHART 9: BUTTERFLY CHART ---
+  vegaEmbed('#chart-butterfly', {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    width: "container", height: 300,
+    data: { url: "data/whitebox_speeds.csv" },
+    transform: [
+      { filter: "datum.technology == 'Fibre to the Premises' || datum.technology == 'Fibre to the Node' || datum.technology == 'Hybrid Fibre Coaxial' || datum.technology == 'Fibre to the Curb'" },
+      { aggregate: [{ op: "mean", field: "download_busy", as: "avg_download" }, { op: "mean", field: "upload_busy", as: "avg_upload" }], groupby: ["technology"] },
+      { calculate: "-datum.avg_upload", as: "neg_upload" },
+      { fold: ["avg_download", "neg_upload"], as: ["metric", "value"] },
+      { calculate: "datum.metric === 'avg_download' ? 'Download' : 'Upload'", as: "Metric" }
+    ],
+    mark: { type: "bar", cornerRadiusEnd: 4 },
+    encoding: {
+      y: { field: "technology", type: "nominal", title: null, axis: { labelLimit: 200 } },
+      x: { field: "value", type: "quantitative", title: "Speed (Mbps)", axis: { format: "d", labelExpr: "abs(datum.value)" } },
+      color: {
+        field: "Metric", type: "nominal",
+        scale: { domain: ["Download", "Upload"], range: ["#3B9AE1", "#F0A82D"] },
+        legend: { orient: "top", title: null }
+      },
+      tooltip: [
+        { field: "technology", type: "nominal", title: "Technology" },
+        { field: "Metric", type: "nominal" },
+        { field: "value", type: "quantitative", title: "Speed (Mbps)", format: ".1f" }
+      ]
+    }
+  }, { config: darkTheme, actions: false }).catch(console.error);
+
+  // --- CHART 10: GROUPED BAR (GEOGRAPHY) ---
+  vegaEmbed('#chart-geography', {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    width: "container", height: 300,
+    data: { url: "data/geography_speeds.csv" },
+    transform: [
+      { fold: ["avg_download_busy", "avg_upload_busy"], as: ["metric", "speed"] },
+      { calculate: "datum.metric === 'avg_download_busy' ? 'Download' : 'Upload'", as: "Metric" }
+    ],
+    mark: { type: "bar", cornerRadiusEnd: 4 },
+    encoding: {
+      x: { field: "geography", type: "nominal", title: null, sort: ["Urban", "Major Rural", "Minor Rural", "Remote"], axis: { labelAngle: 0 } },
+      y: { field: "speed", type: "quantitative", title: "Avg Speed (Mbps)", scale: { domain: [0, 120] } },
+      color: {
+        field: "Metric", type: "nominal",
+        scale: { domain: ["Download", "Upload"], range: ["#3B9AE1", "#F0A82D"] },
+        legend: { orient: "top", title: null }
+      },
+      xOffset: { field: "Metric" },
+      tooltip: [
+        { field: "geography", type: "nominal", title: "Location" },
+        { field: "Metric", type: "nominal" },
+        { field: "speed", type: "quantitative", title: "Speed (Mbps)", format: ".1f" },
+        { field: "sample_size", type: "quantitative", title: "Sample size" }
+      ]
+    }
+  }, { config: darkTheme, actions: false }).catch(console.error);
   </script>
 </body>
 </html>
