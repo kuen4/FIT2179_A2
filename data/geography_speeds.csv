@@ -1,0 +1,5 @@
+geography,avg_download_busy,avg_upload_busy,sample_size
+Urban,100.4,20.2,1077
+Major Rural,100.1,18.5,69
+Minor Rural,73.5,14.3,22
+Remote,29.3,6.5,3
