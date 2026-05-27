@@ -1,0 +1,37 @@
+rsp,axis,value,raw_value,axis_order
+Aussie Broadband,Download Speed,40.0,94.2,0
+Aussie Broadband,Upload Speed,77.4,90.1,1
+Aussie Broadband,Stability,96.0,48.5,2
+Aussie Broadband,Reliability,43.2,91.0,3
+Dodo & iPrimus,Download Speed,94.1,101.5,0
+Dodo & iPrimus,Upload Speed,100.0,92.1,1
+Dodo & iPrimus,Stability,70.9,39.0,2
+Dodo & iPrimus,Reliability,82.2,95.8,3
+Exetel,Download Speed,85.2,100.3,0
+Exetel,Upload Speed,90.9,91.3,1
+Exetel,Stability,88.6,45.7,2
+Exetel,Reliability,65.1,93.7,3
+Leaptel,Download Speed,87.4,100.6,0
+Leaptel,Upload Speed,78.5,90.2,1
+Leaptel,Stability,40.0,27.3,2
+Leaptel,Reliability,63.5,93.5,3
+Optus,Download Speed,100.0,102.3,0
+Optus,Upload Speed,67.2,89.2,1
+Optus,Stability,45.6,29.4,2
+Optus,Reliability,96.8,97.6,3
+Superloop,Download Speed,83.7,100.1,0
+Superloop,Upload Speed,85.3,90.8,1
+Superloop,Stability,98.7,49.5,2
+Superloop,Reliability,89.5,96.7,3
+TPG,Download Speed,93.3,101.4,0
+TPG,Upload Speed,40.0,86.8,1
+TPG,Stability,63.8,36.3,2
+TPG,Reliability,100.0,98.0,3
+Telstra,Download Speed,59.3,96.8,0
+Telstra,Upload Speed,98.9,92.0,1
+Telstra,Stability,55.9,33.3,2
+Telstra,Reliability,40.0,90.6,3
+iiNet,Download Speed,77.8,99.3,0
+iiNet,Upload Speed,57.0,88.3,1
+iiNet,Stability,100.0,50.0,2
+iiNet,Reliability,64.3,93.6,3

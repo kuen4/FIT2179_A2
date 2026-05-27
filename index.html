@@ -37,7 +37,7 @@
     }
     .section-number.blue { background: #3B9AE1; color: #0F1923; }
     h2.blue { color: #3B9AE1; }
-    .section-intro { color: #8A9BAE; font-size: 16px; max-width: 900px; margin-bottom: 36px; margin-top: 8px; }
+    .section-intro { color: #8A9BAE; font-size: 16px; max-width: 1150px; margin-bottom: 36px; margin-top: 8px; }
 
     /* CSS Grid Layout */
     .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
@@ -60,7 +60,7 @@
 
   <header class="hero">
     <h1>Are Australians Getting What They <span>Pay For?</span></h1>
-    <p class="subtitle">An investigation into broadband speeds, promises, and the reality of internet performance across Australia — using independent test data from 1,148 households.</p>
+    <p class="subtitle">An investigation into broadband speeds, promises, and the reality of internet performance across Australia, using independent test data from 1,148 households.</p>
     <p class="meta">Data: ACCC Measuring Broadband Australia Report 32 (Dec 2025) · NBN Co via data.gov.au</p>
   </header>
 
@@ -70,7 +70,7 @@
       <div class="section-number blue">1</div>
       <h2 class="blue">Setting the scene</h2>
     </div>
-    <p class="section-intro">Australia's National Broadband Network connects over 8 million premises. The rollout took years and utilised a mixed-technology model across different states.</p>
+<p class="section-intro">Australia's National Broadband Network connects over 8 million premises across every state and territory. The rollout, which began in around 2016 took years and utilised a mixed technology model, deploying fibre, wireless, and satellite connections depending on the location. The charts below show how the network grew, where it landed, and how performance varies from state to state.</p>
 
     <div class="chart-grid">
       
@@ -104,7 +104,7 @@
       <div class="section-number blue">2</div>
       <h2 class="blue">Are Providers Delivering?</h2>
     </div>
-    <p class="section-intro">Retail Service Providers advertise maximum theoretical speeds. However, real-world network congestion means performance drops, especially during the 7–11 PM busy hours.</p>
+    <p class="section-intro">Retail Service Providers (RSPs) like Telstra, Optus, and Aussie Broadband advertise maximum theoretical speeds, but real world network congestion means performance drops, especially during the 7–11 PM busy hours when most households are streaming, gaming, and video calling. The question is: which providers deliver closest to what they promise, and which fall short?</p>
 
     <div class="chart-grid">
       <!-- DUMBBELL PLOT -->
@@ -142,7 +142,7 @@
         <div class="section-number blue">3</div>
         <h2 class="blue">The technology lottery</h2>
       </div>
-      <p class="section-intro">Your broadband experience depends heavily on the type of NBN connection at your address — fibre to the premises (FTTP) delivers the best results, while fibre to the node (FTTN) relies on old copper wiring and consistently underperforms.</p>
+      <p class="section-intro">Your broadband experience depends heavily on the type of NBN connection at your address which is something most consumers have no control over. Fibre to the Premises (FTTP) delivers the best results because the fibre optic cable runs directly to your home. Fibre to the Node (FTTN), by contrast, relies on old copper telephone wiring for the final stretch, and consistently underperforms. Where you live matters too, as rural and remote areas face a significant speed gap compared to urban centres.</p>
 
       <div class="chart-grid">
         <!-- CHART 8: DOT STRIP PLOT -->
@@ -166,12 +166,42 @@
           <div id="chart-geography" class="vega-container"></div>
         </div>
       </div>
+    </section>
+  <!-- SECTION 4: THE BIGGER PICTURE -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number blue">4</div>
+        <h2 class="blue">The bigger picture</h2>
+      </div>
+      <p class="section-intro">Beyond download speeds, upload performance and latency paint a fuller picture of broadband quality. Uploads matter for video calls, cloud backups, and working from home and unlike downloads, NBN Co does not overprovision them. 
+        Latency affects everything from online gaming to video conferencing. The map below combines speed, latency, and sample size into one view, while the radar chart scores each provider across four key dimensions 
+        to reveal who truly performs best overall.</p>
 
-  <!-- FOOTER -->
+      <div class="chart-grid">
+        <div class="chart-card full-width">
+          <h3>Speed, latency, and sample size by state</h3>
+          <p class="chart-desc">Circle size represents sample size (number of tested households). Colour encodes average latency, darker means higher latency (worse). Hover for download and upload speeds.</p>
+          <div id="chart-prop-symbol-map" class="vega-container"></div>
+        </div>
+
+        <div class="chart-card full-width">
+          <h3>Provider scorecard: who performs best overall?</h3>
+          <p class="chart-desc">Each provider scored across four dimensions download speed, upload speed, stability (% with no outages), and reliability (% not underperforming). Values are normalised so axes are comparable. Use the dropdown to compare providers.</p>
+          <div id="chart-radar" class="vega-container"></div>
+        </div>
+      </div>
+    </section>
+<!-- FOOTER -->
   <footer class="footer">
-    <p><strong>Data sources:</strong> <a href="#" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report 32</a> (April 2026) · <a href="#" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a></p>
-    <p style="margin-top:8px;"><strong>Author:</strong> Kuenley Mututsang · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
+    <p><strong>Data sources:</strong></p>
+    <p style="margin-top:4px;"><a href="https://www.accc.gov.au/by-industry/telecommunications-and-internet/telecommunications-monitoring/measuring-broadband-australia-program/latest-performance-report" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report and Appendix 32</a> (December 2025) — RSP speeds, outages, underperforming services, technology speeds, geography speeds, state performance, and individual household (whitebox) test data from 1,148 panel members.</p>
+    <p style="margin-top:4px;"><a href="https://data.gov.au/data/dataset/weekly-progress-report" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a> — cumulative rollout timeseries and state-level activation breakdowns (brownfield/greenfield).</p>
+    <p style="margin-top:4px;"><a href="https://github.com/rowanhogan/australian-states/blob/master/states.geojson" style="color: #3B9AE1; text-decoration: none;">github.com - rowanhogan</a> — Australian-States</p>
+    <p style="margin-top:4px; color: #4E6275;">State centroid coordinates and provider radar scorecard data were derived from the above sources for visualisation purposes.</p>
+    <p style="margin-top:12px;"><strong>Author:</strong> Kuenley Mututsang · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
   </footer>
+
+
 </section>
   <script>
     const darkTheme = {
@@ -527,6 +557,213 @@
         { field: "sample_size", type: "quantitative", title: "Sample size" }
       ]
     }
+  }, { config: darkTheme, actions: false }).catch(console.error);
+
+// --- CHART 11: PROPORTIONAL SYMBOL MAP ---
+  vegaEmbed('#chart-prop-symbol-map', {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    width: "container", height: 500,
+    layer: [
+      {
+        data: { url: "data/states.geojson", format: { property: "features" } },
+        mark: { type: "geoshape", fill: "#1E3040", stroke: "#2A3F52", strokeWidth: 1 },
+        projection: { type: "mercator" }
+      },
+      {
+        data: { url: "data/state_centroids.csv" },
+        transform: [{
+          lookup: "state",
+          from: {
+            data: { url: "data/state_detailed.csv" },
+            key: "state",
+            fields: ["avg_download_busy", "avg_upload_busy", "avg_latency_busy", "sample_size"]
+          }
+        }],
+        projection: { type: "mercator" },
+        mark: { type: "circle", opacity: 0.85, stroke: "#E8ECEF", strokeWidth: 1 },
+        encoding: {
+          longitude: { field: "longitude", type: "quantitative" },
+          latitude: { field: "latitude", type: "quantitative" },
+          size: {
+            field: "sample_size", type: "quantitative",
+            scale: { range: [100, 3000] },
+            legend: { title: "Sample Size", labelColor: "#8A9BAE", titleColor: "#8A9BAE" }
+          },
+          color: {
+            field: "avg_latency_busy", type: "quantitative",
+            scale: { scheme: "orangered", domain: [7, 20] },
+            legend: { title: "Latency (ms)", labelColor: "#8A9BAE", titleColor: "#8A9BAE" }
+          },
+          tooltip: [
+            { field: "state", type: "nominal", title: "State" },
+            { field: "avg_download_busy", type: "quantitative", title: "Download (Mbps)", format: ".1f" },
+            { field: "avg_upload_busy", type: "quantitative", title: "Upload (Mbps)", format: ".1f" },
+            { field: "avg_latency_busy", type: "quantitative", title: "Latency (ms)", format: ".1f" },
+            { field: "sample_size", type: "quantitative", title: "Households Tested" }
+          ]
+        }
+      },
+      {
+        data: { url: "data/state_centroids.csv" },
+        transform: [{
+          lookup: "state",
+          from: {
+            data: { url: "data/state_detailed.csv" },
+            key: "state",
+            fields: ["avg_latency_busy"]
+          }
+        },
+        {
+          calculate: "datum.state == 'New South Wales' ? 'NSW' : datum.state == 'Victoria' ? 'VIC' : datum.state == 'Queensland' ? 'QLD' : datum.state == 'Western Australia' ? 'WA' : datum.state == 'South Australia' ? 'SA' : datum.state == 'Tasmania' ? 'TAS' : datum.state == 'Northern Territory' ? 'NT' : 'ACT'",
+          as: "abbrev"
+        }],
+        projection: { type: "mercator" },
+        mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold", fill: "#E8ECEF", dy: -2 },
+        encoding: {
+          longitude: { field: "longitude", type: "quantitative" },
+          latitude: { field: "latitude", type: "quantitative" },
+          text: { field: "abbrev", type: "nominal" }
+        }
+      },
+      // Annotation: NT & SA high latency callout
+      {
+        data: { values: [{ "lat": -15.5, "lon": 132.55, "note": "NT & SA: highest latency\n(~20ms) due to distance\nfrom network infrastructure" }] },
+        projection: { type: "mercator" },
+        mark: { type: "text", font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#E0604D", align: "left", lineBreak: "\n" },
+        encoding: {
+          longitude: { field: "lon", type: "quantitative" },
+          latitude: { field: "lat", type: "quantitative" },
+          text: { field: "note", type: "nominal" }
+        }
+      },
+      // Annotation: VIC & NSW low latency callout
+      {
+        data: { values: [{ "lat": -38.5, "lon": 148.5, "note": "VIC & NSW: lowest latency (~8ms)\nlargest sample sizes" }] },
+        projection: { type: "mercator" },
+        mark: { type: "text", font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#3B9AE1", align: "left", lineBreak: "\n" },
+        encoding: {
+          longitude: { field: "lon", type: "quantitative" },
+          latitude: { field: "lat", type: "quantitative" },
+          text: { field: "note", type: "nominal" }
+        }
+      }
+    ]
+  }, { config: darkTheme, actions: false }).catch(console.error);
+
+// --- CHART 12: RADAR / SPIDER CHART (Custom-built) ---
+  vegaEmbed('#chart-radar', {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    width: 480, height: 480,
+    autosize: { type: "pad" },
+    padding: { left: 80, right: 180, top: 30, bottom: 50 },
+    data: { url: "data/radar_data.csv" },
+    transform: [
+      { calculate: "toNumber(datum.axis_order)", as: "axis_idx" },
+      { calculate: "datum.axis_idx * (2 * PI / 4)", as: "angle" },
+      { calculate: "toNumber(datum.value) * cos(datum.angle - PI/2)", as: "x" },
+      { calculate: "toNumber(datum.value) * sin(datum.angle - PI/2)", as: "y" }
+    ],
+    layer: [
+      // Grid rings
+      {
+        data: { sequence: { start: 20, stop: 101, step: 20, as: "r" } },
+        transform: [
+          { calculate: "sequence(0, 2*PI + 0.1, 2*PI/60)", as: "angles" },
+          { flatten: ["angles"], as: ["a"] },
+          { calculate: "datum.r * cos(datum.a - PI/2)", as: "gx" },
+          { calculate: "datum.r * sin(datum.a - PI/2)", as: "gy" }
+        ],
+        mark: { type: "line", strokeWidth: 0.5, stroke: "#2A3F52", opacity: 0.6 },
+        encoding: {
+          x: { field: "gx", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          y: { field: "gy", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          detail: { field: "r", type: "nominal" }
+        }
+      },
+      // Axis spokes
+      {
+        data: { values: [
+          {"ai": 0, "label": "Download Speed"},
+          {"ai": 1, "label": "Upload Speed"},
+          {"ai": 2, "label": "Stability"},
+          {"ai": 3, "label": "Reliability"}
+        ]},
+        transform: [
+          { calculate: "datum.ai * (2 * PI / 4)", as: "angle" },
+          { calculate: "110 * cos(datum.angle - PI/2)", as: "sx" },
+          { calculate: "110 * sin(datum.angle - PI/2)", as: "sy" }
+        ],
+        mark: { type: "rule", stroke: "#2A3F52", strokeWidth: 0.8 },
+        encoding: {
+          x: { field: "sx", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          y: { field: "sy", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          x2: { datum: 0 },
+          y2: { datum: 0 }
+        }
+      },
+      // Axis labels
+      {
+        data: { values: [
+          {"ai": 0, "label": "Download Speed"},
+          {"ai": 1, "label": "Upload Speed"},
+          {"ai": 2, "label": "Stability"},
+          {"ai": 3, "label": "Reliability"}
+        ]},
+        transform: [
+          { calculate: "datum.ai * (2 * PI / 4)", as: "angle" },
+          { calculate: "122 * cos(datum.angle - PI/2)", as: "lx" },
+          { calculate: "122 * sin(datum.angle - PI/2)", as: "ly" }
+        ],
+        mark: { type: "text", font: "DM Sans", fontSize: 12, fontWeight: "bold", fill: "#8A9BAE" },
+        encoding: {
+          x: { field: "lx", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          y: { field: "ly", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          text: { field: "label", type: "nominal" }
+        }
+      },
+      // Provider polygon lines — default: show only 2 highlighted, rest very faint
+      {
+        params: [{
+          name: "selectedRSP",
+          select: { type: "point", fields: ["rsp"] },
+          bind: {
+            input: "select",
+            options: [null, "Aussie Broadband", "Dodo & iPrimus", "Exetel", "iiNet", "Leaptel", "Optus", "Superloop", "Telstra", "TPG"],
+            labels: ["Show All", "Aussie Broadband", "Dodo & iPrimus", "Exetel", "iiNet", "Leaptel", "Optus", "Superloop", "Telstra", "TPG"],
+            name: "Compare Provider: "
+          }
+        }],
+        mark: { type: "line", interpolate: "linear-closed", strokeWidth: 1.5 },
+        encoding: {
+          x: { field: "x", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          y: { field: "y", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          color: {
+            field: "rsp", type: "nominal",
+            scale: { scheme: "tableau10" },
+            legend: { title: "Provider", labelColor: "#8A9BAE", titleColor: "#8A9BAE", orient: "right", labelFontSize: 11 }
+          },
+          order: { field: "axis_idx", type: "ordinal" },
+          opacity: { condition: { param: "selectedRSP", value: 1 }, value: 0.15 },
+          strokeWidth: { condition: { param: "selectedRSP", value: 3 }, value: 1 }
+        }
+      },
+      // Data points
+      {
+        mark: { type: "point", filled: true, size: 35 },
+        encoding: {
+          x: { field: "x", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          y: { field: "y", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          color: { field: "rsp", type: "nominal" },
+          opacity: { condition: { param: "selectedRSP", value: 1 }, value: 0.1 },
+          tooltip: [
+            { field: "rsp", type: "nominal", title: "Provider" },
+            { field: "axis", type: "nominal", title: "Metric" },
+            { field: "raw_value", type: "quantitative", title: "Raw Value", format: ".1f" },
+            { field: "value", type: "quantitative", title: "Normalised Score", format: ".0f" }
+          ]
+        }
+      }
+    ]
   }, { config: darkTheme, actions: false }).catch(console.error);
   </script>
 </body>
