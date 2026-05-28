@@ -54,6 +54,15 @@
 
     .footer { border-top: 1px solid #1E3040; padding: 40px 0; margin-top: 48px; }
     .footer p { font-size: 13px; color: #4E6275; line-height: 1.7; }
+
+    .chart-content-wrapper { display: flex; align-items: flex-start; gap: 24px; }
+    .analysis-box { 
+      flex: 1; min-width: 250px; padding: 20px; background: #0F1923; 
+      border-radius: 8px; border-left: 3px solid #3B9AE1; margin-top: 40px;
+    }
+    .analysis-box p { font-size: 13px; color: #8A9BAE; margin-bottom: 12px; line-height: 1.6; }
+    .analysis-box strong { color: #E8ECEF; font-weight: 600; }
+
   </style>
 </head>
 <body>
@@ -117,9 +126,10 @@
       <!-- SCATTER PLOT -->
       <div class="chart-card">
         <h3>The Download vs Upload Balance</h3>
-        <p class="chart-desc">Comparing busy hour download and upload performance. Use the dropdown to highlight a provider.</p>
+        <p class="chart-desc">Comparing busy hour download and upload performance. <strong>Bubble size represents the number of households tested.</strong> Use the dropdown to highlight a provider.</p>
         <div id="chart-scatter" class="vega-container"></div>
       </div>
+
 
       <!-- OUTAGES CHART -->
       <div class="chart-card">
@@ -186,10 +196,20 @@
 
         <div class="chart-card full-width">
           <h3>Provider scorecard: who performs best overall?</h3>
-          <p class="chart-desc">Each provider scored across four dimensions download speed, upload speed, stability (% with no outages), and reliability (% not underperforming). Values are normalised so axes are comparable. Use the dropdown to compare providers.</p>
-          <div id="chart-radar" class="vega-container"></div>
+          <p class="chart-desc">Each provider scored across four dimensions. Values are normalised (0-100) so axes are comparable. Use the dropdown to compare providers.</p>
+          
+          <div class="chart-content-wrapper">
+            <div id="chart-radar" class="vega-container" style="flex: 2;"></div>
+            
+            <div class="analysis-box">
+              <p><strong>How to read this:</strong> Each axis represents a key performance metric. A larger, more symmetrical "diamond" shape indicates a provider that delivers a high-quality experience across all categories, rather than just raw speed.</p>
+              
+              <p><strong>The Findings:</strong> While providers like <strong>Optus</strong> and <strong>TPG</strong> lead in raw download speeds, they often show lower scores in stability or upload performance. </p>
+              
+              <p><strong>Aussie Broadband</strong> and <strong>Exetel</strong> emerge as the most balanced performers. Their polygons are the most symmetric, indicating they provide high reliability and stability without sacrificing the speed required for modern household needs.</p>
+            </div>
+          </div>
         </div>
-      </div>
     </section>
 <!-- FOOTER -->
   <footer class="footer">
@@ -209,11 +229,15 @@
       title: { color: "#E8ECEF", font: "DM Sans", fontSize: 14, fontWeight: "normal" },
       axis: {
         labelColor: "#8A9BAE", titleColor: "#8A9BAE", gridColor: "#1E3040",
-        domainColor: "#1E3040", tickColor: "#1E3040", font: "DM Sans"
+        domainColor: "#1E3040", tickColor: "#1E3040", font: "DM Sans",
+        labelFontSize: 12, titleFontSize: 13, labelPadding: 4 
       },
-      legend: { labelColor: "#8A9BAE", titleColor: "#8A9BAE", font: "DM Sans" },
+      legend: { 
+        labelColor: "#8A9BAE", titleColor: "#8A9BAE", font: "DM Sans",
+        labelFontSize: 12, titleFontSize: 13, symbolSize: 150 
+      },
       view: { stroke: "transparent" },
-      text: { font: "DM Sans", color: "#E8ECEF" }
+      text: { font: "DM Sans", color: "#E8ECEF", fontSize: 11 }
     };
 
     // --- CHART 1: AREA CHART ---
@@ -310,7 +334,7 @@
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
   
-       // --- 1. SHARED INTERACTIVE VARIABLE --
+       // SHARED INTERACTIVE VARIABLE --
     const rspSelection = {
       name: "Select_Provider",
       select: { type: "point", fields: ["rsp"] },
@@ -359,7 +383,7 @@
           }
         },
         {
-          mark: { type: "text", align: "right", dx: -12, color: "#E0604D", font: "DM Sans", fontSize: 11, fontStyle: "italic" },
+          mark: { type: "text", align: "right", dx: -12, color: "#E8ECEF", font: "DM Sans", fontSize: 11, fontStyle: "italic" },
           encoding: {
             x: { field: "download_busy", type: "quantitative" },
             text: { condition: { test: "datum.rsp == 'TPG'", value: "TPG shows a notable drop →" }, value: "", type: "nominal" }
@@ -368,7 +392,7 @@
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
 
-    // --- CHART 5: SCATTER PLOT ---
+    // --- CHART 5: SCATTER / BUBBLE PLOT ---
     vegaEmbed('#chart-scatter', {
       $schema: "https://vega.github.io/schema/vega-lite/v5.json",
       width: "container", height: 320,
@@ -376,26 +400,55 @@
       layer: [
         {
           params: [rspSelection], 
-          mark: { type: "circle", size: 250 },
+          mark: { type: "circle", stroke: "#E8ECEF", strokeWidth: 0.5 }, 
           encoding: {
             x: { field: "download_busy", type: "quantitative", scale: {domain: [93, 103]}, title: "Download % (Busy Hrs)" },
             y: { field: "upload_busy", type: "quantitative", scale: {domain: [85, 94]}, title: "Upload % (Busy Hrs)" },
-            color: { field: "rsp", type: "nominal", legend: null, scale: {scheme: "tableau10"} },
-            opacity: { condition: { param: "Select_Provider", value: 1 }, value: 0.2 },
+            size: { 
+              field: "panel_size", 
+              type: "quantitative", 
+              scale: { range: [100, 800] }, 
+              legend: null 
+            },
+            color: { 
+              field: "rsp", 
+              type: "nominal", 
+              scale: {
+                domain: ["Aussie Broadband", "Dodo & iPrimus", "Exetel", "iiNet", "Leaptel", "Optus", "Superloop", "Telstra", "TPG"],
+                range: [
+                  "#3A86FF", // Aussie Broadband: Electric Blue
+                  "#FFBE0B", // Dodo: Bright Amber/Yellow
+                  "#FB5607", // Exetel: Intense Orange-Red
+                  "#FFFFFF", // iiNet: Pure White 
+                  "#9B5DE5", // Leaptel: Royal Purple
+                  "#8AC926", // Optus: Grass Green
+                  "#FF006E", // Superloop: Vivid Rose/Pink
+                  "#00F5D4", // Telstra: Bright Aqua/Cyan
+                  "#F15BB5"  // TPG: Neon Magenta
+                ]
+              },
+              legend: { title: "Provider", orient: "right", titleColor: "#8A9BAE", labelColor: "#8A9BAE" }
+            },
+            opacity: { 
+              condition: { param: "Select_Provider", value: 0.75 }, 
+              value: 0.15 
+            },
             tooltip: [
               {field: "rsp", type: "nominal", title: "Provider"},
               {field: "download_busy", type: "quantitative", title: "Download %", format: ".1f"},
-              {field: "upload_busy", type: "quantitative", title: "Upload %", format: ".1f"}
+              {field: "upload_busy", type: "quantitative", title: "Upload %", format: ".1f"},
+              {field: "panel_size", type: "quantitative", title: "Households Tested"}
             ]
           }
         },
         {
-          mark: { type: "text", dy: -18, font: "DM Sans", fill: "#E8ECEF", fontSize: 11, fontWeight: "bold" },
+          // Specific Annotation for TPG
+          data: { values: [{"x": 101.4, "y": 86.8, "text": "TPG: High download, but lowest upload performance"}] },
+          mark: { type: "text", align: "right", dx: 45, dy: 25, font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#E8ECEF" },
           encoding: {
-            x: { field: "download_busy", type: "quantitative" },
-            y: { field: "upload_busy", type: "quantitative" },
-            text: { field: "rsp", type: "nominal" },
-            opacity: { condition: { param: "Select_Provider", value: 1 }, value: 0.1 }
+            x: { field: "x", type: "quantitative" },
+            y: { field: "y", type: "quantitative" },
+            text: { field: "text", type: "nominal" }
           }
         }
       ]
@@ -433,15 +486,19 @@
           }
         },
         {
-          mark: { type: "text", font: "DM Sans", fontSize: 11, color: "black", fontWeight: "bold" },
+          mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold" },
           encoding: {
-            text: { field: "Percentage", type: "quantitative", format: ".0f" }
+            text: { field: "Percentage", type: "quantitative", format: ".0f" },
+            // Added conditional color encoding
+            color: {
+              condition: { test: "datum.Percentage > 26", value: "white" },
+              value: "#0F1923" // Black for light backgrounds
+            }
           }
         }
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
-
-
+  
     // --- CHART 7: UNDERPERFORMING RSPs LOLLIPOP ---
     vegaEmbed('#chart-underperforming-rsp', {
       $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -484,23 +541,41 @@
         { filter: "datum.technology == 'Fibre to the Premises' || datum.technology == 'Fibre to the Node' || datum.technology == 'Hybrid Fibre Coaxial' || datum.technology == 'Fibre to the Curb'" },
         { calculate: "toNumber(datum.download_busy)", as: "dl_speed" }
       ],
-      mark: { type: "tick", thickness: 2, opacity: 0.4 },
-      encoding: {
-        x: { field: "dl_speed", type: "quantitative", title: "Download Speed (Mbps)", scale: { domain: [0, 600] } },
-        y: { field: "technology", type: "nominal", title: null, axis: { labelLimit: 200 } },
-        color: {
-          field: "technology", type: "nominal",
-          scale: { domain: ["Fibre to the Premises", "Fibre to the Curb", "Hybrid Fibre Coaxial", "Fibre to the Node"], range: ["#3B9AE1", "#1DB38B", "#F0A82D", "#E0604D"] },
-          legend: null
+      layer: [
+        {
+          mark: { type: "tick", thickness: 2, opacity: 0.25 }, // Fixed opacity
+          encoding: {
+            x: { field: "dl_speed", type: "quantitative", title: "Download Speed (Mbps)", scale: { domain: [0, 600] } },
+            y: { field: "technology", type: "nominal", title: null, axis: { labelLimit: 200 } },
+            color: {
+              field: "technology", type: "nominal",
+              // Sophisticated, muted contrast palette
+              scale: { 
+                domain: ["Fibre to the Premises", "Fibre to the Curb", "Hybrid Fibre Coaxial", "Fibre to the Node"], 
+                range: ["#2AB7CA", "#9396D3", "#E5A8A2", "#E55954"] 
+              },
+              legend: null
+            },
+            tooltip: [
+              { field: "technology", type: "nominal", title: "Technology" },
+              { field: "dl_speed", type: "quantitative", title: "Download (Mbps)", format: ".1f" },
+              { field: "rsp", type: "nominal", title: "Provider" },
+              { field: "tier", type: "nominal", title: "Plan" }
+            ]
+          }
         },
-        tooltip: [
-          { field: "technology", type: "nominal", title: "Technology" },
-          { field: "dl_speed", type: "quantitative", title: "Download (Mbps)", format: ".1f" },
-          { field: "rsp", type: "nominal", title: "Provider" },
-          { field: "tier", type: "nominal", title: "Plan" }
-        ]
-      }
+        {
+          data: { values: [{"tech": "Fibre to the Node", "speed": 140, "text": "FTTN & FTTC struggles to exceed 100 Mbps →"}] },
+          mark: { type: "text", align: "left", dx: -10, font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#E8ECEF" },
+          encoding: {
+            y: { field: "tech", type: "nominal" },
+            x: { field: "speed", type: "quantitative" },
+            text: { field: "text", type: "nominal" }
+          }
+        }
+      ]
     }, { config: darkTheme, actions: false }).catch(console.error);
+
 
   // --- CHART 9: BUTTERFLY CHART ---
   vegaEmbed('#chart-butterfly', {
@@ -520,7 +595,7 @@
       x: { field: "value", type: "quantitative", title: "Speed (Mbps)", axis: { format: "d", labelExpr: "abs(datum.value)" } },
       color: {
         field: "Metric", type: "nominal",
-        scale: { domain: ["Download", "Upload"], range: ["#3B9AE1", "#F0A82D"] },
+        scale: { domain: ["Download", "Upload"], range: ["#00F5D4", "#9B5DE5"] },
         legend: { orient: "top", title: null }
       },
       tooltip: [
@@ -540,24 +615,38 @@
       { fold: ["avg_download_busy", "avg_upload_busy"], as: ["metric", "speed"] },
       { calculate: "datum.metric === 'avg_download_busy' ? 'Download' : 'Upload'", as: "Metric" }
     ],
-    mark: { type: "bar", cornerRadiusEnd: 4 },
-    encoding: {
-      x: { field: "geography", type: "nominal", title: null, sort: ["Urban", "Major Rural", "Minor Rural", "Remote"], axis: { labelAngle: 0 } },
-      y: { field: "speed", type: "quantitative", title: "Avg Speed (Mbps)", scale: { domain: [0, 120] } },
-      color: {
-        field: "Metric", type: "nominal",
-        scale: { domain: ["Download", "Upload"], range: ["#3B9AE1", "#F0A82D"] },
-        legend: { orient: "top", title: null }
+    layer: [
+      {
+        mark: { type: "bar", cornerRadiusEnd: 4 },
+        encoding: {
+          x: { field: "geography", type: "nominal", title: null, sort: ["Urban", "Major Rural", "Minor Rural", "Remote"], axis: { labelAngle: 0 } },
+          y: { field: "speed", type: "quantitative", title: "Avg Speed (Mbps)", scale: { domain: [0, 120] } },
+          color: {
+            field: "Metric", type: "nominal",
+            scale: { domain: ["Download", "Upload"], range: ["#00F5D4", "#9B5DE5"] }, // <-- New unique colors
+            legend: { orient: "top", title: null }
+          },
+          xOffset: { field: "Metric" },
+          tooltip: [
+            { field: "geography", type: "nominal", title: "Location" },
+            { field: "Metric", type: "nominal" },
+            { field: "speed", type: "quantitative", title: "Speed (Mbps)", format: ".1f" },
+            { field: "sample_size", type: "quantitative", title: "Sample size" }
+          ]
+        }
       },
-      xOffset: { field: "Metric" },
-      tooltip: [
-        { field: "geography", type: "nominal", title: "Location" },
-        { field: "Metric", type: "nominal" },
-        { field: "speed", type: "quantitative", title: "Speed (Mbps)", format: ".1f" },
-        { field: "sample_size", type: "quantitative", title: "Sample size" }
-      ]
-    }
+      {
+        data: { values: [{"geo": "Remote", "speed": 40, "text": "Drop in Remote areas"}] },
+        mark: { type: "text", align: "center", dy: -10, font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#E8ECEF" },
+        encoding: {
+          x: { field: "geo", type: "nominal" },
+          y: { field: "speed", type: "quantitative" },
+          text: { field: "text", type: "nominal" }
+        }
+      }
+    ]
   }, { config: darkTheme, actions: false }).catch(console.error);
+
 
 // --- CHART 11: PROPORTIONAL SYMBOL MAP ---
   vegaEmbed('#chart-prop-symbol-map', {
@@ -565,11 +654,13 @@
     width: "container", height: 500,
     layer: [
       {
+        // 1. The Base Map
         data: { url: "data/states.geojson", format: { property: "features" } },
         mark: { type: "geoshape", fill: "#1E3040", stroke: "#2A3F52", strokeWidth: 1 },
         projection: { type: "mercator" }
       },
       {
+        // 2. The Bubbles
         data: { url: "data/state_centroids.csv" },
         transform: [{
           lookup: "state",
@@ -604,6 +695,7 @@
         }
       },
       {
+        // 3. The State Text Labels (Updated with conditional colors)
         data: { url: "data/state_centroids.csv" },
         transform: [{
           lookup: "state",
@@ -618,15 +710,22 @@
           as: "abbrev"
         }],
         projection: { type: "mercator" },
-        mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold", fill: "#E8ECEF", dy: -2 },
+        mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold", dy: -2 }, // Removed static fill color
         encoding: {
           longitude: { field: "longitude", type: "quantitative" },
           latitude: { field: "latitude", type: "quantitative" },
-          text: { field: "abbrev", type: "nominal" }
+          text: { field: "abbrev", type: "nominal" },
+          color: {
+            condition: {
+              test: "datum.abbrev == 'VIC' || datum.abbrev == 'NSW' || datum.abbrev == 'ACT' || datum.abbrev == 'QLD' || datum.abbrev == 'WA'",
+              value: "#0F1923" // Black for light bubbles
+            },
+            value: "#E8ECEF" // White for dark bubbles 
+          }
         }
       },
-      // Annotation: NT & SA high latency callout
       {
+        // Annotation: NT & SA high latency callout
         data: { values: [{ "lat": -15.5, "lon": 132.55, "note": "NT & SA: highest latency\n(~20ms) due to distance\nfrom network infrastructure" }] },
         projection: { type: "mercator" },
         mark: { type: "text", font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#E0604D", align: "left", lineBreak: "\n" },
@@ -636,8 +735,8 @@
           text: { field: "note", type: "nominal" }
         }
       },
-      // Annotation: VIC & NSW low latency callout
       {
+        // Annotation: VIC & NSW low latency callout
         data: { values: [{ "lat": -38.5, "lon": 148.5, "note": "VIC & NSW: lowest latency (~8ms)\nlargest sample sizes" }] },
         projection: { type: "mercator" },
         mark: { type: "text", font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#3B9AE1", align: "left", lineBreak: "\n" },
@@ -650,12 +749,13 @@
     ]
   }, { config: darkTheme, actions: false }).catch(console.error);
 
-// --- CHART 12: RADAR / SPIDER CHART (Custom-built) ---
+
+// --- CHART 12: RADAR / SPIDER CHART (With Consistent Colors & Conclusion) ---
   vegaEmbed('#chart-radar', {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     width: 480, height: 480,
     autosize: { type: "pad" },
-    padding: { left: 80, right: 180, top: 30, bottom: 50 },
+    padding: { left: 0, right: 130, top: 30, bottom: 50 }, // <-- Changed left to 0, right to 130
     data: { url: "data/radar_data.csv" },
     transform: [
       { calculate: "toNumber(datum.axis_order)", as: "axis_idx" },
@@ -721,7 +821,7 @@
           text: { field: "label", type: "nominal" }
         }
       },
-      // Provider polygon lines — default: show only 2 highlighted, rest very faint
+      // Provider polygon lines (Updated Color Palette)
       {
         params: [{
           name: "selectedRSP",
@@ -739,7 +839,10 @@
           y: { field: "y", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
           color: {
             field: "rsp", type: "nominal",
-            scale: { scheme: "tableau10" },
+            scale: {
+              domain: ["Aussie Broadband", "Dodo & iPrimus", "Exetel", "iiNet", "Leaptel", "Optus", "Superloop", "Telstra", "TPG"],
+              range: ["#3A86FF", "#FFBE0B", "#FB5607", "#FFFFFF", "#9B5DE5", "#8AC926", "#FF006E", "#00F5D4", "#F15BB5"]
+            },
             legend: { title: "Provider", labelColor: "#8A9BAE", titleColor: "#8A9BAE", orient: "right", labelFontSize: 11 }
           },
           order: { field: "axis_idx", type: "ordinal" },
@@ -761,6 +864,16 @@
             { field: "raw_value", type: "quantitative", title: "Raw Value", format: ".1f" },
             { field: "value", type: "quantitative", title: "Normalised Score", format: ".0f" }
           ]
+        }
+      },
+      // FINAL ANNOTATION
+      {
+        data: { values: [{"x": 0, "y": 145, "text": "Conclusion: Aussie Broadband & Exetel show the most balanced overall performance."}] },
+        mark: { type: "text", align: "center", font: "DM Sans", fontSize: 13, fontWeight: "bold", fill: "#3B9AE1" },
+        encoding: {
+          x: { field: "x", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          y: { field: "y", type: "quantitative", axis: null, scale: { domain: [-130, 130] } },
+          text: { field: "text", type: "nominal" }
         }
       }
     ]
