@@ -70,7 +70,7 @@
   <header class="hero">
     <h1>Are Australians Getting What They <span>Pay For?</span></h1>
     <p class="subtitle">An investigation into broadband speeds, promises, and the reality of internet performance across Australia, using independent test data from 1,148 households.</p>
-    <p class="meta">Data: ACCC Measuring Broadband Australia Report 32 (Dec 2025) · NBN Co via data.gov.au</p>
+    <p class="meta">Data: ACCC Measuring Broadband Australia Report 32 (April 2026), based on December 2025 data. · NBN Co via data.gov.au</p>
   </header>
 
   <!-- SECTION 1: SETTING THE SCENE -->
@@ -79,7 +79,7 @@
       <div class="section-number blue">1</div>
       <h2 class="blue">Setting the scene</h2>
     </div>
-<p class="section-intro">Australia's National Broadband Network connects over 8 million premises across every state and territory. The rollout, which began in around 2016 took years and utilised a mixed technology model, deploying fibre, wireless, and satellite connections depending on the location. The charts below show how the network grew, where it landed, and how performance varies from state to state.</p>
+<p class="section-intro">Australia's National Broadband Network connects over 11 million premises across every state and territory. The rollout, which began in around 2016 took years and utilised a mixed technology model, deploying fibre, wireless, and satellite connections depending on the location. The charts below show how the network grew, where it landed, and how performance varies from state to state.</p>
 
     <div class="chart-grid">
       
@@ -158,7 +158,7 @@
         <!-- CHART 8: DOT STRIP PLOT -->
         <div class="chart-card full-width">
           <h3>Every household tells a story</h3>
-          <p class="chart-desc">Each dot represents one of 1,172 tested households. Grouped by connection technology, showing busy hour download speeds in Mbps.</p>
+          <p class="chart-desc">Each dot represents one of 1,172 tested households (Report 28). Grouped by connection technology, showing busy hour download speeds in Mbps.</p>
           <div id="chart-strip" class="vega-container"></div>
         </div>
 
@@ -193,7 +193,6 @@
           <p class="chart-desc">Circle size represents sample size (number of tested households). Colour encodes average latency, darker means higher latency (worse). Hover for download and upload speeds.</p>
           <div id="chart-prop-symbol-map" class="vega-container"></div>
         </div>
-
         <div class="chart-card full-width">
           <h3>Provider scorecard: who performs best overall?</h3>
           <p class="chart-desc">Each provider scored across four dimensions. Values are normalised (0-100) so axes are comparable. Use the dropdown to compare providers.</p>
@@ -210,19 +209,16 @@
             </div>
           </div>
         </div>
+      </div>
     </section>
 <!-- FOOTER -->
   <footer class="footer">
     <p><strong>Data sources:</strong></p>
-    <p style="margin-top:4px;"><a href="https://www.accc.gov.au/by-industry/telecommunications-and-internet/telecommunications-monitoring/measuring-broadband-australia-program/latest-performance-report" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report and Appendix 32</a> (December 2025) — RSP speeds, outages, underperforming services, technology speeds, geography speeds, state performance, and individual household (whitebox) test data from 1,148 panel members.</p>
-    <p style="margin-top:4px;"><a href="https://data.gov.au/data/dataset/weekly-progress-report" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a> — cumulative rollout timeseries and state-level activation breakdowns (brownfield/greenfield).</p>
+    <p style="margin-top:4px;"><a href="https://www.accc.gov.au/by-industry/telecommunications-and-internet/telecommunications-monitoring/measuring-broadband-australia-program/latest-performance-report" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report 32 and Appendix</a> (April 2026, based on December 2025 data) — RSP speeds, outages, underperforming services, technology speeds, and state performance from 1,148 panel members.</p>
+    <p style="margin-top:4px;"><a href="https://www.accc.gov.au/by-industry/telecommunications-and-internet/telecommunications-monitoring/measuring-broadband-australia-program/previous-performance-reports" style="color: #3B9AE1; text-decoration: none;">ACCC Measuring Broadband Australia Report 28 Data Release</a> (March 2025) — individual household (whitebox) test data from 1,172 panel members, used for technology and geography breakdowns.</p>    <p style="margin-top:4px;"><a href="https://data.gov.au/data/dataset/weekly-progress-report" style="color: #3B9AE1; text-decoration: none;">NBN Co Rollout Data via data.gov.au</a> — cumulative rollout timeseries and state-level activation breakdowns (brownfield/greenfield).</p>
     <p style="margin-top:4px;"><a href="https://github.com/rowanhogan/australian-states/blob/master/states.geojson" style="color: #3B9AE1; text-decoration: none;">github.com - rowanhogan</a> — Australian-States</p>
-    <p style="margin-top:4px; color: #4E6275;">State centroid coordinates and provider radar scorecard data were derived from the above sources for visualisation purposes.</p>
-    <p style="margin-top:12px;"><strong>Author:</strong> Kuenley Mututsang · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
+    <p style="margin-top:4px; color: #4E6275;">State centroid coordinates and provider radar scorecard data were derived from the above sources for visualisation purposes. NT and SA are reported as a combined group in the ACCC data, the values shown are identical as they cannot be disaggregated.</p>    <p style="margin-top:12px;"><strong>Author:</strong> Kuenley Mututsang · FIT2179 Data Visualisation 2, Monash University · May 2026</p>
   </footer>
-
-
-</section>
   <script>
     const darkTheme = {
       background: "#162029",
@@ -334,7 +330,7 @@
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
   
-       // SHARED INTERACTIVE VARIABLE --
+       // -- SHARED INTERACTIVE VARIABLE --
     const rspSelection = {
       name: "Select_Provider",
       select: { type: "point", fields: ["rsp"] },
@@ -695,7 +691,7 @@
         }
       },
       {
-        // 3. The State Text Labels (Updated with conditional colors)
+        // 3. The State Text Labels
         data: { url: "data/state_centroids.csv" },
         transform: [{
           lookup: "state",
@@ -710,7 +706,7 @@
           as: "abbrev"
         }],
         projection: { type: "mercator" },
-        mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold", dy: -2 }, // Removed static fill color
+        mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold", dy: -2 },
         encoding: {
           longitude: { field: "longitude", type: "quantitative" },
           latitude: { field: "latitude", type: "quantitative" },
@@ -750,7 +746,7 @@
   }, { config: darkTheme, actions: false }).catch(console.error);
 
 
-// --- CHART 12: RADAR / SPIDER CHART (With Consistent Colors & Conclusion) ---
+// --- CHART 12: RADAR / SPIDER CHART ---
   vegaEmbed('#chart-radar', {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     width: 480, height: 480,
@@ -821,7 +817,7 @@
           text: { field: "label", type: "nominal" }
         }
       },
-      // Provider polygon lines (Updated Color Palette)
+      // Provider lines
       {
         params: [{
           name: "selectedRSP",
