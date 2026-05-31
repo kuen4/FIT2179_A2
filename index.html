@@ -206,7 +206,7 @@
               
               <p><strong>The Findings:</strong> While providers like <strong>Optus</strong> and <strong>TPG</strong> lead in raw download speeds, they often show lower scores in stability or upload performance. </p>
               
-              <p><strong>Aussie Broadband</strong> and <strong>Exetel</strong> emerge as the most balanced performers. Their polygons are the most symmetric, indicating they provide high reliability and stability without sacrificing the speed required for modern household needs.</p>
+              <p><strong>Aussie Broadband</strong> and <strong>Exetel</strong> emerge as the most balanced performers. Their diamonds are the most symmetric, indicating they provide high reliability and stability without sacrificing the speed required for modern household needs.</p>
             </div>
           </div>
         </div>
@@ -271,10 +271,16 @@
       $schema: "https://vega.github.io/schema/vega-lite/v5.json",
       width: "container", height: 350,
       data: { url: "data/states.geojson", format: { property: "features" } },
-      transform: [{
-        lookup: "properties.STATE_NAME",
-        from: { data: { url: "data/state_speeds.csv" }, key: "state", fields: ["download_busy"] }
-      }],
+      transform: [
+          {
+              calculate: "datum.properties.STATE_NAME == 'Northern Territory' || datum.properties.STATE_NAME == 'South Australia' ? 'NT + SA' : datum.properties.STATE_NAME",
+              as: "lookup_key"
+          },
+          {
+              lookup: "lookup_key",
+              from: { data: { url: "data/state_speeds.csv" }, key: "state", fields: ["download_busy"] }
+          }
+      ],
       projection: { type: "mercator" },
       mark: { type: "geoshape", stroke: "#1E3040", strokeWidth: 1 },
       encoding: {
@@ -663,12 +669,16 @@
         // 2. The Bubbles
         data: { url: "data/state_centroids.csv" },
         transform: [{
-          lookup: "state",
-          from: {
-            data: { url: "data/state_detailed.csv" },
-            key: "state",
-            fields: ["avg_download_busy", "avg_upload_busy", "avg_latency_busy", "sample_size"]
-          }
+            lookup: "state",
+            from: {
+                data: { url: "data/state_detailed.csv" },
+                key: "state",
+                fields: ["avg_latency_busy"]
+            }
+        },
+        {
+            calculate: "datum.state == 'New South Wales' ? 'NSW' : datum.state == 'Victoria' ? 'VIC' : datum.state == 'Queensland' ? 'QLD' : datum.state == 'Western Australia' ? 'WA' : datum.state == 'NT + SA' ? 'NT+SA' : datum.state == 'Tasmania' ? 'TAS' : 'ACT'",
+            as: "abbrev"
         }],
         projection: { type: "mercator" },
         mark: { type: "circle", opacity: 0.85, stroke: "#E8ECEF", strokeWidth: 1 },
@@ -706,8 +716,8 @@
           }
         },
         {
-          calculate: "datum.state == 'New South Wales' ? 'NSW' : datum.state == 'Victoria' ? 'VIC' : datum.state == 'Queensland' ? 'QLD' : datum.state == 'Western Australia' ? 'WA' : datum.state == 'South Australia' ? 'SA' : datum.state == 'Tasmania' ? 'TAS' : datum.state == 'Northern Territory' ? 'NT' : 'ACT'",
-          as: "abbrev"
+            calculate: "datum.state == 'New South Wales' ? 'NSW' : datum.state == 'Victoria' ? 'VIC' : datum.state == 'Queensland' ? 'QLD' : datum.state == 'Western Australia' ? 'WA' : datum.state == 'NT + SA' ? 'NT+SA' : datum.state == 'Tasmania' ? 'TAS' : 'ACT'",
+            as: "abbrev"
         }],
         projection: { type: "mercator" },
         mark: { type: "text", font: "DM Sans", fontSize: 11, fontWeight: "bold", dy: -2 }, // Removed static fill color
@@ -726,7 +736,7 @@
       },
       {
         // Annotation: NT & SA high latency callout
-        data: { values: [{ "lat": -15.5, "lon": 132.55, "note": "NT & SA: highest latency\n(~20ms) due to distance\nfrom network infrastructure" }] },
+        data: { values: [{ "lat": -15.5, "lon": 132.55, "note": "NT + SA: highest latency\n(~20ms) due to distance\nfrom network infrastructure" }] },
         projection: { type: "mercator" },
         mark: { type: "text", font: "DM Sans", fontSize: 11, fontStyle: "italic", fill: "#E0604D", align: "left", lineBreak: "\n" },
         encoding: {
