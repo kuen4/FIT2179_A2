@@ -381,13 +381,13 @@
             tooltip: [{field: "rsp", type: "nominal", title: "Provider"}, {field: "download_busy", type: "quantitative", title: "Busy Hours Speed %", format: ".1f"}]
           }
         },
-        {
-          mark: { type: "text", align: "right", dx: -12, color: "#E8ECEF", font: "DM Sans", fontSize: 11, fontStyle: "italic" },
+      {
+          mark: { type: "text", align: "left", dx: 12, color: "#E8ECEF", font: "DM Sans", fontSize: 11, fontStyle: "italic" },
           encoding: {
-            x: { field: "download_busy", type: "quantitative" },
-            text: { condition: { test: "datum.rsp == 'TPG'", value: "TPG shows a notable drop →" }, value: "", type: "nominal" }
+              x: { field: "download_all", type: "quantitative" },
+              text: { condition: { test: "datum.rsp == 'Superloop'", value: "← Largest busy hour drop" }, value: "", type: "nominal" }
           }
-        }
+      }
       ]
     }, { config: darkTheme, actions: false }).catch(console.error);
 
